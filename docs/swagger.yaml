@@ -1,0 +1,620 @@
+basePath: /api
+definitions:
+  dto.CreateUserDto:
+    properties:
+      email:
+        minLength: 1
+        type: string
+      name:
+        minLength: 1
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  dto.LoginDto:
+    properties:
+      email:
+        minLength: 1
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.PackageDto:
+    properties:
+      description:
+        minLength: 1
+        type: string
+      image:
+        minLength: 1
+        type: string
+      name:
+        minLength: 1
+        type: string
+      price:
+        minimum: 1
+        type: number
+    required:
+    - description
+    - image
+    - name
+    - price
+    type: object
+  dto.ResourceDto:
+    properties:
+      name:
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  dto.UpdatePackageDto:
+    properties:
+      description:
+        minLength: 1
+        type: string
+      id:
+        type: string
+      image:
+        minLength: 1
+        type: string
+      name:
+        minLength: 1
+        type: string
+      price:
+        minimum: 1
+        type: number
+    required:
+    - description
+    - image
+    - name
+    - price
+    type: object
+  dto.UpdateResourceDto:
+    properties:
+      id:
+        type: string
+      name:
+        minLength: 1
+        type: string
+    required:
+    - id
+    - name
+    type: object
+  dto.UpdateUserDto:
+    properties:
+      email:
+        minLength: 1
+        type: string
+      name:
+        minLength: 1
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  model.Package:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      packageResource:
+        description: package has many resource
+        items:
+          $ref: '#/definitions/model.PackageResource'
+        type: array
+      price:
+        type: number
+      subscribes:
+        description: package have many subscribe
+        items:
+          $ref: '#/definitions/model.Subscribe'
+        type: array
+      updated_at:
+        type: string
+    type: object
+  model.PackageResource:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: string
+      package:
+        $ref: '#/definitions/model.Package'
+      package_id:
+        type: string
+      resource:
+        $ref: '#/definitions/model.Resource'
+      resource_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.Resource:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      packageResource:
+        items:
+          $ref: '#/definitions/model.PackageResource'
+        type: array
+      updated_at:
+        type: string
+    type: object
+  model.Subscribe:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      expired_date:
+        type: string
+      id:
+        type: string
+      package:
+        $ref: '#/definitions/model.Package'
+      package_id:
+        type: string
+      payment_method:
+        type: string
+      purchase_date:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+      user_id:
+        type: string
+    type: object
+  model.User:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      subscribes:
+        description: user have many subscribe
+        items:
+          $ref: '#/definitions/model.Subscribe'
+        type: array
+      updated_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: purjayadi@gmail.com
+    name: Purjayadi
+    url: https://www.linkedin.com/in/purjayadi-9a154013a/
+  description: A SAS API in Go using Gin framework.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Gin SAS Service
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      description: Login
+      parameters:
+      - description: userInput
+        in: body
+        name: userInput
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      summary: Login
+      tags:
+      - auth
+  /auth/register:
+    post:
+      description: Register
+      parameters:
+      - description: userInput
+        in: body
+        name: userInput
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      summary: Register
+      tags:
+      - auth
+  /package:
+    get:
+      description: Responds with the list of all packages as JSON.
+      parameters:
+      - description: page
+        in: query
+        name: page
+        type: string
+      - description: pageSize
+        in: query
+        name: pageSize
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Package'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get packages array
+      tags:
+      - packages
+    post:
+      description: Create new package
+      parameters:
+      - description: package
+        in: body
+        name: package
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PackageDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Package'
+      security:
+      - BearerAuth: []
+      summary: Create new package
+      tags:
+      - packages
+  /package/{id}:
+    delete:
+      description: Delete package by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Package'
+      security:
+      - BearerAuth: []
+      summary: Delete package by id
+      tags:
+      - packages
+    get:
+      description: Find package by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Package'
+      security:
+      - BearerAuth: []
+      summary: Get package by id
+      tags:
+      - packages
+    put:
+      description: Update package
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: package
+        in: body
+        name: package
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePackageDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Package'
+      security:
+      - BearerAuth: []
+      summary: Update package
+      tags:
+      - packages
+  /resource:
+    get:
+      description: Responds with the list of all resources as JSON.
+      parameters:
+      - description: page
+        in: query
+        name: page
+        type: string
+      - description: pageSize
+        in: query
+        name: pageSize
+        type: string
+      - description: search
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Resource'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get resources array
+      tags:
+      - resource
+    post:
+      description: Create new resource
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ResourceDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Resource'
+      security:
+      - BearerAuth: []
+      summary: Create new resource
+      tags:
+      - resource
+  /resource/{id}:
+    delete:
+      description: Delete resource
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Resource'
+      security:
+      - BearerAuth: []
+      summary: Delete resource
+      tags:
+      - resource
+    get:
+      description: Find resource by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Resource'
+      security:
+      - BearerAuth: []
+      summary: Get resource by id
+      tags:
+      - resource
+    patch:
+      description: Update resource
+      parameters:
+      - description: body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateResourceDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Resource'
+      security:
+      - BearerAuth: []
+      summary: Update resource
+      tags:
+      - resource
+  /user:
+    get:
+      description: Responds with the list of all users as JSON.
+      parameters:
+      - description: page
+        in: query
+        name: page
+        type: string
+      - description: pageSize
+        in: query
+        name: pageSize
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.User'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get users array
+      tags:
+      - users
+    post:
+      description: Create new user
+      parameters:
+      - description: userInput
+        in: body
+        name: userInput
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      security:
+      - BearerAuth: []
+      summary: Create new user
+      tags:
+      - users
+  /user/{email}:
+    get:
+      description: Find user by email
+      parameters:
+      - description: email
+        in: path
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      security:
+      - BearerAuth: []
+      summary: Get user by email
+      tags:
+      - users
+  /user/{id}:
+    delete:
+      description: Delete user by id
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      security:
+      - BearerAuth: []
+      summary: Delete user by id
+      tags:
+      - users
+    patch:
+      description: Update user by id
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: userInput
+        in: body
+        name: userInput
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+      security:
+      - BearerAuth: []
+      summary: Update user by id
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
